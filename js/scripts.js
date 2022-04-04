@@ -1,3 +1,6 @@
+const gotMenu = document.querySelector(".got-menu");
+const categoryDataListContainer = document.querySelector(".category-data-list");
+
 let apiUrl = "https://www.anapioficeandfire.com/api/";
 let categoryList = [];
 let categoryDataList = [];
@@ -21,20 +24,24 @@ function loadCategories() {
 }
 
 function loadCategoryData(categoryUrl) {
+  categoryDataList = [];
   return fetch(categoryUrl)
     .then(response => {
       return response.json();
     })
     .then (data => {
-      data.forEach(item => addToList(categoryDataList, item.name));
-      // return data.forEach(item => console.log(item.name));
+      data.forEach(item => {
+        let listItem = {
+          name: item.name,
+          gender: item.gender
+        };
+      addToList(categoryDataList, listItem);
+      });
     }).catch(e => console.error(e)); 
 }
 
 // 1. For each got category, create button/tab
 function addCategoryListItem(item) {
-  let gotMenu = document.querySelector(".got-menu");
-
   //create list item
   let gotMenuItem = document.createElement("li");
   gotMenuItem.classList.add("got-menu_item");
@@ -51,26 +58,25 @@ function addCategoryListItem(item) {
 
   //event listener
   button.addEventListener("click", function() {
-    console.log(item.url);
-    return loadList(item.url);});
+    return loadList(item.url);
+  });
 }
 
 // 2. on category click, show first 50 items as buttons
 function addCategoryDataListItem(item) {
-  let categoryDataList = document.querySelector(".category-data-list");
-  console.log(categoryDataList);
-
   let categoryDataListItem = document.createElement("li");
   categoryDataListItem.classList.add("category-data-list_item");
 
   let button = document.createElement("button");
-  button.innerText = item;
+  if (!item.name) {
+    button.innerText = `Unnamed ${item.gender}`;
+  } else 
+  button.innerText = item.name;
   button.classList.add("category-data-list_item_button");
   button.setAttribute("type", "button");
 
   categoryDataListItem.appendChild(button);
-  console.log(categoryDataListItem);
-  categoryDataList.appendChild(categoryDataListItem);
+  categoryDataListContainer.appendChild(categoryDataListItem);
 
   // event listener
   // button.addEventListen
@@ -79,6 +85,7 @@ function addCategoryDataListItem(item) {
 function loadList(url) {
   loadCategoryData(url)
   .then(function() {
+    categoryDataListContainer.innerHTML = "";
     categoryDataList.forEach(function(category) {
       addCategoryDataListItem(category);
     });
@@ -99,3 +106,5 @@ loadCategories()
 
 
 // 3. on item click, show details
+
+
